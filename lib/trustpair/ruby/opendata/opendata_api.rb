@@ -52,7 +52,7 @@ module Trustpair
           end
           # TODO: improve this section to deal with redirects
           response = Net::HTTP.start(@host, @port, :use_ssl => true) {|http|
-            uri = URI.parse("https://#{@host}:#{@port}#{@main_path}?where=#{sirets_query}&pretty=false&timezone=UTC&rows=100")
+            uri = URI.parse("https://#{@host}:#{@port}#{@main_path}?where=#{sirets_query}&pretty=false&timezone=UTC&rows=100")#WARN: limited to 100 rows
             @log.debug uri
             http.request(Net::HTTP::Get.new(uri.path + '?' + uri.query))
           }
