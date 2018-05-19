@@ -20,49 +20,40 @@ module Trustpair
           @log = logger
         end
 
-        def searchBySiret(siret)
-          # TODO: improve this section to deal with redirects
-          response = Net::HTTP.start(@host, @port, :use_ssl => true) {|http|
-            uri = URI.parse("https://#{@host}:#{@port}#{@main_path}?where=siret%3D#{siret}&pretty=false&timezone=UTC")
-            @log.debug uri
-            http.request(Net::HTTP::Get.new(uri.path + '?' + uri.query))
-          }
-          validate response
-
-          # getting the data
-          records = JSON.parse(response.body)['records']
-          record = nil
-          if records.empty?
-            @log.debug "could not find any record with siret number #{siret}"
-          else
-            @log.debug "found record #{records[0]['record']} by siret number #{siret}"
-            record = records[0]['record']['fields']
-          end
-
-          return record
-        end
-
         def searchBySirets(sirets)
           sirets_query = ''
           sirets.each {|siret|
-            sirets_query+=" or (siret%3D#{siret})"
+            sirets_query += "or(siret%3D#{siret})"
           }
           if !sirets_query.empty?
-            sirets_query = sirets_query[4..-1]
-          end
-          # TODO: improve this section to deal with redirects
-          response = Net::HTTP.start(@host, @port, :use_ssl => true) {|http|
-            uri = URI.parse("https://#{@host}:#{@port}#{@main_path}?where=#{sirets_query}&pretty=false&timezone=UTC&rows=100")#WARN: limited to 100 rows
+            sirets_query = sirets_query[2..-1] # to remove the first 'or' condition
+            uri = "https://#{@host}:#{@port}#{@main_path}?where=#{sirets_query}&pretty=false&timezone=UTC&rows=100" #WARN: limited to 100 rows
             @log.debug uri
-            http.request(Net::HTTP::Get.new(uri.path + '?' + uri.query))
-          }
-          validate response
+            response = fetch(uri)
+            validate response
 
-          # getting the data
-          JSON.parse(response.body)['records']
+            # getting the data
+            return JSON.parse(response.body)['records']
+          end
         end
 
         private
+        def fetch(uri_str, limit = 10)
+          raise Exception, 'HTTP redirect too deep' if limit == 0
+
+          url = URI.parse(uri_str)
+          req = Net::HTTP::Get.new(url.path + '?' + url.query)
+          response = Net::HTTP.start(url.host, url.port, :use_ssl=> true) {| http | http.request(req)}
+          case response
+            when Net::HTTPSuccess then
+              response
+            when Net::HTTPRedirection then
+              fetch(response['location'], limit - 1)
+            else
+              response.error!
+          end
+        end
+
         def validate(entity)
           if entity.code != '200'
             @log.error("Problem when calling the Opendata API")
