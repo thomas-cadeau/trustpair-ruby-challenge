@@ -1,6 +1,7 @@
 require 'net/http'
 require 'json'
 require 'logger'
+require_relative '../config'
 
 module Trustpair
   module Ruby
@@ -9,10 +10,13 @@ module Trustpair
       # this is the api to call the open data resources of sirene@public
       class OpendataApi
 
+        # this is the limit given by the API opendatasoft
+        MAX_ROWS = 100
+
         def initialize (logger = Logger.new(STDOUT))
-          @host = 'data.opendatasoft.com'
-          @port = '443'
-          @main_path = '/api/v2/catalog/datasets/sirene@public/records'
+          @host = Trustpair::Ruby::Config::CONFIG['api']['opendatasoftware']['host']
+          @port = Trustpair::Ruby::Config::CONFIG['api']['opendatasoftware']['port']
+          @sirene_resource = Trustpair::Ruby::Config::CONFIG['api']['opendatasoftware']['sirene_resource']
           @log = logger
         end
 
@@ -27,7 +31,7 @@ module Trustpair
           }
           if !sirets_query.empty?
             sirets_query = sirets_query[2..-1] # to remove the first 'or' condition
-            uri = "https://#{@host}:#{@port}#{@main_path}?where=#{sirets_query}&pretty=false&timezone=UTC&rows=100" #WARN: limited to 100 rows
+            uri = "https://#{@host}:#{@port}#{@sirene_resource}?where=#{sirets_query}&pretty=false&timezone=UTC&rows=#{MAX_ROWS}"
             @log.debug uri
             response = fetch(uri)
             validate response

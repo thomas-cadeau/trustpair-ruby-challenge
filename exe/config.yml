@@ -1,0 +1,5 @@
+api:
+  opendatasoftware:
+    host: data.opendatasoft.com
+    port: 443
+    sirene_resource: /api/v2/catalog/datasets/sirene@public/records
