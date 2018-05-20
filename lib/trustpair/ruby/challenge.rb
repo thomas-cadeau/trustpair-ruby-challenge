@@ -87,7 +87,7 @@ module Trustpair
       # reading the CSV line by line is less time and memory consuming, if we have large input data files
       sirets = []
       i = 0
-      CSV.foreach('../../../data/data.csv', {:headers => true}) do |row|
+      CSV.foreach(File.dirname(__FILE__) + '/../../../data/data.csv', {:headers => true}) do |row|
         sirets[i] = row['siret'] # read the line and keep it
         if sirets.length == Trustpair::Ruby::Opendata::OpendataApi::MAX_ROWS
           # proceed to the API call
