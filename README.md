@@ -18,7 +18,9 @@ Or install it yourself as:
 
 ## Usage
 
-To run the program 'as it', run `exe/trustpair-ruby-challenge`
+`exe/trustpair-ruby-challenge -h` to see the options
+
+To run the program 'as it' with a default input set, run `exe/trustpair-ruby-challenge`
 
 ## Development
 
