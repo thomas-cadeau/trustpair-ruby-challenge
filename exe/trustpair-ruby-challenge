@@ -1,9 +1,19 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 require 'logger'
+require 'optparse'
+
 require_relative "File.dirname(__FILE__)/../../lib/trustpair/challenge_runner"
 
+options = {}
+ARGV.options do |opts|
+  opts.on('-d', '--data=val', String, 'data input file path') { |val| options[:data] = val }
+  opts.on('--debug', 'for verbose run') { options[:log_level] = Logger::DEBUG }
+  opts.parse!
+end
+
 @log = Logger.new(STDOUT)
+@log.level = options[:log_level] || Logger::INFO
 
 def self.export_companies(output)
   @log.debug "exporting companies: #{output}"
@@ -14,8 +24,9 @@ def self.export_companies(output)
   end
 end
 
-challenge = Trustpair::ChallengeRunner.new()
-companies = challenge.run(File.dirname(__FILE__) + '/../data/data.csv')
+challenge = Trustpair::ChallengeRunner.new(nil, @log)
+data_path = options[:data] || File.dirname(__FILE__) + '/../data/data.csv'
+companies = challenge.run(data_path)
 export_companies(companies)
 
 

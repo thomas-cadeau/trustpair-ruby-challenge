@@ -8,10 +8,10 @@ require_relative 'config'
 module Trustpair
   class ChallengeRunner
 
-    def initialize(api = Trustpair::Opendata::OpendataApi.new(), logger = Logger.new(STDOUT))
+    def initialize(api, logger = Logger.new(STDOUT))
       @log = logger
       @log.debug Trustpair::Config::CONFIG
-      @api = api
+      @api = api || Trustpair::Opendata::OpendataApi.new(logger)
     end
 
     def run(input_path)
