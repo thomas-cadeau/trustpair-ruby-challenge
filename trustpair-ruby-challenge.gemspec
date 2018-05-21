@@ -1,11 +1,11 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "trustpair/ruby/challenge/version"
+require "trustpair/challenge/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "trustpair-ruby-challenge"
-  spec.version       = Trustpair::Ruby::Challenge::VERSION
+  spec.version       = Trustpair::Challenge::VERSION
   spec.authors       = ["Thomas Cadeau"]
   spec.email         = ["thomas@dev-indep.fr"]
 

@@ -1,3 +1,21 @@
 #!/usr/bin/env ruby
+require 'fileutils'
+require 'logger'
+require_relative "File.dirname(__FILE__)/../../lib/trustpair/challenge_runner"
 
-require_relative "File.dirname(__FILE__)/../../lib/trustpair/ruby/challenge"
+@log = Logger.new(STDOUT)
+
+def self.export_companies(output)
+  @log.debug "exporting companies: #{output}"
+  export_path = Dir.pwd.to_s + '/../../../output'
+  FileUtils.mkpath export_path
+  File.open("#{export_path}/output.json", "w") do |f|
+    f.write(output.to_json)
+  end
+end
+
+challenge = Trustpair::ChallengeRunner.new()
+companies = challenge.run(File.dirname(__FILE__) + '/../data/data.csv')
+export_companies(companies)
+
+
